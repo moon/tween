@@ -69,7 +69,7 @@ Tween = (function() {
     this.duration = duration;
     this.options = options;
     this.target = target;
-    this.easing = Tween.Linear;
+    this.easing = API.Linear;
     this.onStart = [];
     this.onStep = [];
     this.onDone = [];
@@ -180,6 +180,8 @@ Tween = (function() {
 
       if (tweens.length) {
         req = raf(update);
+      } else {
+        running = false;
       }
     }
   }
@@ -206,7 +208,7 @@ Tween = (function() {
   // API
   //------------------------------
 
-  return {
+  var API = {
 
     Linear: ease(function(t) {
       return t;
@@ -263,5 +265,7 @@ Tween = (function() {
       return queue(tween);
     }
   };
+
+  return API;
 
 })();
