@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tween Example</title>
+  <style type="text/css">
+    html, body {
+      background: #1A1B1B;
+      margin: 0;
+    }
+    #ui {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="ui">
+    <button id="toggle">Toggle</button>
+  </div>
+  <script src="tween.js"></script>
+  <script>
+
+    var BACKGROUND_COLOR = '#1A1B1B';
+    var DOT_COLOR = '#F6F7EA';
+    var EQUATIONS = [
+      'Linear',
+      'Elastic',
+      'Bounce',
+      'Back',
+      'Sine',
+      'Circ',
+      'Expo',
+      'Quad',
+      'Cubic',
+      'Quart',
+      'Quint'
+    ];
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var dots = [];
+
+    var height = canvas.height = window.innerHeight;
+    var width = canvas.width = window.innerWidth;
+
+    function setup() {
+
+      var space = width * 0.8;
+      var start = (width - space) / 2;
+      var total = EQUATIONS.length * 3;
+      var step = space / total;
+
+      context.fillStyle = BACKGROUND_COLOR;
+      context.fillRect(0, 0, width, height);
+
+      EQUATIONS.forEach(function(name, index) {
+        x = start + (step / 2) + index * 3 * step;
+        dots.push(
+          makeDot(x, Tween[name].in),
+          makeDot(x + step, Tween[name].out),
+          makeDot(x + step * 2, Tween[name].inOut)
+        );
+      });
+
+      initUI();
+      update();
+    }
+
+    function initUI() {
+      var toggle = document.getElementById('toggle');
+      toggle.addEventListener('click', function() {
+        dots.forEach(function(dot) {
+          if (!dot.tween.paused) {
+            dot.tween.pause();
+          } else {
+            dot.tween.play();
+          }
+        });
+      });
+    }
+
+    function makeDot(x, ease) {
+      var dot = {
+        radius: 5,
+        ease: ease,
+        x: x,
+        y: height * 0.2
+      };
+      dot.animate = animate.bind(dot);
+      dot.animate();
+      return dot;
+    }
+
+    function animate() {
+      
+      var position = height * (this.y > height/2 ? 0.2 : 0.8);
+
+      this.tween =
+
+        Tween.to(this, 1.5, { y: position })
+          
+          .wait(0.0)            // optional delay
+          .ease(this.ease)      // optional easing function
+          .start(function() {}) // add start callback
+          .step(function() {})  // add step callback
+          .done(this.animate);  // add done callback
+    }
+
+    function update() {
+      requestAnimationFrame(update);
+      context.fillStyle = BACKGROUND_COLOR;
+      context.globalAlpha = 0.3;
+      context.fillRect(0, 0, width, height);
+      context.beginPath();
+      for (var dot, i = 0, n = dots.length; i < n; i++) {
+        dot = dots[i];
+        context.moveTo(dot.x + dot.radius, dot.y);
+        context.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+      }
+      context.globalAlpha = 1.0;
+      context.fillStyle = DOT_COLOR;
+      context.fill();
+    }
+
+    setup();
+
+  </script>
+</body>
+</html>
